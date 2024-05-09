@@ -41,7 +41,7 @@ max_date = all_df["order_purchase_timestamp"].max()
 with st.sidebar:
 
     start_date, end_date = st.date_input(
-        label= 'Rentang Waktu', min_value=min_date,
+        label= 'Time Span', min_value=min_date,
         max_value=max_date,
         value=[min_date, max_date]
     )
@@ -54,11 +54,11 @@ seller_response = create_seller_response_df(main_df)
 review_rate = create_review_rate_df(main_df)
 user_location_df = create_user_location_df(main_df)
 
-st.header('Proyek Analisis Data: E-Commere Public')
+st.header('Data Analysis Project: E-Commerce Public')
 
 st.write('- Nama: Nicolas Debrito')
 st.write('- Email: nicolas.debrito66@gmail.com')
-st.write('- Id Dicoding: reezzy')
+st.write('- Id Dicoding: rezzy')
 
 st.subheader('Seller Response Performance')
 

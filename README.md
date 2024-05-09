@@ -18,4 +18,4 @@ streamlit run ./dashboard/dashboard.py
 
 ## Dashboard Streamlit Link
 
-https://project-analysis-data.streamlit.app/
+https://data-science-e-commere-public-data-analysis.streamlit.app/
