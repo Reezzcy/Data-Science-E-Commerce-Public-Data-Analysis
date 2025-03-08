@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
-import geopandas as gpd
+from mpl_toolkits.basemap import Basemap
 
 def create_seller_response_df(df):
     seller_response = df.groupby("response_category").agg({
@@ -56,139 +56,152 @@ user_location_df = create_user_location_df(main_df)
 
 st.header('Data Analysis Project: E-Commerce Public')
 
-st.write('- Nama: Nicolas Debrito')
+st.write('- Name: Nicolas Debrito')
 st.write('- Email: nicolas.debrito66@gmail.com')
-st.write('- Id Dicoding: rezzy')
+st.write('- Id Dicoding: reezzy')
 
-st.subheader('Seller Response Performance')
+if main_df.shape[0] == 0:
+    st.header('Data on date not available')
+    st.subheader('Please enter the date correctly')
+else:
+    st.subheader('Seller Response Performance')
 
-col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
 
-with col1:
-    avg_response_perfomance = round(orders.mean(), 1)
-    avg_response_perfomance = "Cepat" if avg_response_perfomance <= 2 else ("Normal" if avg_response_perfomance < 12 else "Lambat")
-    st.metric("Average Response Performence", value=avg_response_perfomance)
+    with col1:
+        avg_response_perfomance = round(orders.mean(), 1)
+        avg_response_perfomance = "Fast" if avg_response_perfomance <= 2 else ("Normal" if avg_response_perfomance < 12 else "Slow")
+        st.metric("Average Response Performence", value=avg_response_perfomance)
 
-with col2:
-    avg_response = round(orders.mean(), 1)
-    st.metric("Average Response in Hour", value=avg_response)
+    with col2:
+        avg_response = round(orders.mean(), 1)
+        st.metric("Average Response in Hour", value=avg_response)
 
-seller_response.rename(columns={
-    "response_time_hour": "response_count"
-}, inplace=True)
+    seller_response.rename(columns={
+        "response_time_hour": "response_count"
+    }, inplace=True)
 
-colors = ["#72BCD4", "#D3D3D3", "#D3D3D3", "#D3D3D3", "#D3D3D3"]
+    colors = ["#72BCD4", "#D3D3D3", "#D3D3D3", "#D3D3D3", "#D3D3D3"]
 
-plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(10, 5))
 
-sns.barplot(
-    y="response_count", 
-    x="response_category",
-    data=seller_response.sort_values(by="response_count", ascending=False),
-    palette=colors
-)
+    sns.barplot(
+        y="response_count", 
+        x="response_category",
+        data=seller_response.sort_values(by="response_count", ascending=False),
+        palette=colors,
+        hue="response_category",
+    )
 
-plt.title("Seller Response Performance", loc="center", fontsize=15)
-plt.ylabel("Total Response")
-plt.xlabel("Response Category")
-plt.tick_params(axis='x', labelsize=12)
+    plt.title("Seller Response Performance", loc="center", fontsize=15)
+    plt.ylabel("Total Response")
+    plt.xlabel("Response Category")
+    plt.tick_params(axis='x', labelsize=12)
 
-st.pyplot(plt)
+    st.pyplot(plt)
 
-st.subheader('Best and Worst Performing Product by Number of Sales')
+    st.subheader('Best and Worst Performing Product by Number of Sales')
 
-col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
 
-with col1:
-    best_product = review_rate.review_score.max()
-    st.metric("Best Rating", value=best_product)
+    with col1:
+        best_product = review_rate.review_score.max()
+        st.metric("Best Rating", value=best_product)
 
-with col2:
-    avg_rating = round(review_rate.review_score.mean(), 2)
-    st.metric("Average Rating", value=avg_rating)
+    with col2:
+        avg_rating = round(review_rate.review_score.mean(), 2)
+        st.metric("Average Rating", value=avg_rating)
 
-fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(24, 6))
+    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(24, 6))
 
-colors = ["#72BCD4", "#D3D3D3", "#D3D3D3", "#D3D3D3", "#D3D3D3"]
+    colors = ["#72BCD4", "#D3D3D3", "#D3D3D3", "#D3D3D3", "#D3D3D3"]
 
-sns.barplot(x="review_score", y="product_category_name_english", data=review_rate.head(5), palette=colors, ax=ax[0])
-ax[0].set_ylabel(None)
-ax[0].set_xlabel(None)
-ax[0].set_title("Best Performing Product", loc="center", fontsize=15)
-ax[0].tick_params(axis ='y', labelsize=12)
+    sns.barplot(x="review_score", y="product_category_name_english", data=review_rate.head(5), palette=colors, hue="product_category_name_english", legend=False, ax=ax[0])
+    ax[0].set_ylabel(None)
+    ax[0].set_xlabel(None)
+    ax[0].set_title("Best Performing Product", loc="center", fontsize=15)
+    ax[0].tick_params(axis ='y', labelsize=12)
 
-sns.barplot(x="review_score", y="product_category_name_english", data=review_rate.sort_values(by="review_score", ascending=True).head(5), palette=colors, ax=ax[1])
-ax[1].set_ylabel(None)
-ax[1].set_xlabel(None)
-ax[1].invert_xaxis()
-ax[1].yaxis.set_label_position("right")
-ax[1].yaxis.tick_right()
-ax[1].set_title("Worst Performing Product", loc="center", fontsize=15)
-ax[1].tick_params(axis='y', labelsize=12)
+    sns.barplot(x="review_score", y="product_category_name_english", data=review_rate.sort_values(by="review_score", ascending=True).head(5), palette=colors, hue="product_category_name_english", legend=False, ax=ax[1])
+    ax[1].set_ylabel(None)
+    ax[1].set_xlabel(None)
+    ax[1].invert_xaxis()
+    ax[1].yaxis.set_label_position("right")
+    ax[1].yaxis.tick_right()
+    ax[1].set_title("Worst Performing Product", loc="center", fontsize=15)
+    ax[1].tick_params(axis='y', labelsize=12)
 
-plt.suptitle("Best and Worst Performing Product by Number of Sales", fontsize=20)
+    plt.suptitle("Best and Worst Performing Product by Number of Sales", fontsize=20)
 
-st.pyplot(plt)
+    st.pyplot(plt)
 
-st.subheader('Distribution of Sellers and Customers')
+    st.subheader('Distribution of Sellers and Customers')
 
-a = user_location_df.groupby(by="seller_city").agg({
-    "user_id": "count"
-}).sort_values(by="user_id", ascending=False)
-b = user_location_df.groupby(by="customer_city").agg({
-    "user_id": "count"
-}).sort_values(by="user_id", ascending=False)
+    a = user_location_df.groupby(by="seller_city").agg({
+        "user_id": "count"
+    }).sort_values(by="user_id", ascending=False)
+    b = user_location_df.groupby(by="customer_city").agg({
+        "user_id": "count"
+    }).sort_values(by="user_id", ascending=False)
 
-col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
 
-with col1:
-    highest_sellers = a.index[0]
-    st.metric("Highest Sellers City Location", value=highest_sellers)
+    with col1:
+        highest_sellers = a.index[0]
+        st.metric("Highest Sellers City Location", value=highest_sellers)
 
-with col2:
-    highest_customers = b.index[0]
-    st.metric("Highest Customers City Location", value=highest_customers)
+    with col2:
+        highest_customers = b.index[0]
+        st.metric("Highest Customers City Location", value=highest_customers)
 
-geometry = gpd.points_from_xy(user_location_df['Longitude'], user_location_df['Latitude'])
-gdf = gpd.GeoDataFrame(user_location_df, geometry=geometry)
+    sellers = user_location_df[user_location_df['role'] == 'seller']
+    customers = user_location_df[user_location_df['role'] == 'customer']
 
-gdf_seller = gdf[gdf['role'] == 'seller']
-gdf_customer = gdf[gdf['role'] == 'customer']
+    fig, axes = plt.subplots(1, 2, figsize=(15, 6))
 
-fig, ax = plt.subplots(1, 2, figsize=(15, 6))
-world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+    ax1 = axes[0]
+    m1 = Basemap(projection='cyl', llcrnrlat=-90, urcrnrlat=90, llcrnrlon=-180, urcrnrlon=180, ax=ax1)
+    m1.drawcoastlines()
+    m1.drawcountries()
+    m1.fillcontinents(color='lightgrey', lake_color='white')
 
-world.plot(ax=ax[0], color='lightgrey')
-gdf_seller.plot(ax=ax[0], color='blue', marker='o', markersize=1)
-ax[0].set_title('Seller Map')
+    x_seller, y_seller = m1(sellers['Longitude'].values, sellers['Latitude'].values)
+    ax1.scatter(x_seller, y_seller, color='blue', marker='o', s=10, edgecolors='black', label="Sellers")
+    ax1.set_title("Seller Locations")
 
-world.plot(ax=ax[1], color='lightgrey')
-gdf_customer.plot(ax=ax[1], color='green', marker='o', markersize=1)
-ax[1].set_title('Customer Map')
+    ax2 = axes[1]
+    m2 = Basemap(projection='cyl', llcrnrlat=-90, urcrnrlat=90, llcrnrlon=-180, urcrnrlon=180, ax=ax2)
+    m2.drawcoastlines()
+    m2.drawcountries()
+    m2.fillcontinents(color='lightgrey', lake_color='white')
 
-plt.tight_layout()
+    x_customer, y_customer = m2(customers['Longitude'].values, customers['Latitude'].values)
+    ax2.scatter(x_customer, y_customer, color='green', marker='o', s=10, edgecolors='black', label="Customers")
+    ax2.set_title("Customer Locations")
 
-st.pyplot(plt)
+    plt.tight_layout()
 
-fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(24, 6))
+    st.pyplot(plt)
 
-colors = ["#72BCD4", "#D3D3D3", "#D3D3D3", "#D3D3D3", "#D3D3D3"]
+    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(24, 6))
 
-sns.barplot(x="user_id", y="seller_city", data=a.head(5), palette=colors, ax=ax[0])
-ax[0].set_ylabel(None)
-ax[0].set_xlabel(None)
-ax[0].set_title("Seller Distribution", loc="center", fontsize=15)
-ax[0].tick_params(axis ='y', labelsize=12)
+    colors = ["#72BCD4", "#D3D3D3", "#D3D3D3", "#D3D3D3", "#D3D3D3"]
 
-sns.barplot(x="user_id", y="customer_city", data=b.sort_values(by="user_id", ascending=False).head(5), palette=colors, ax=ax[1])
-ax[1].set_ylabel(None)
-ax[1].set_xlabel(None)
-ax[1].invert_xaxis()
-ax[1].yaxis.set_label_position("right")
-ax[1].yaxis.tick_right()
-ax[1].set_title("Customer Distribution", loc="center", fontsize=15)
-ax[1].tick_params(axis='y', labelsize=12)
+    sns.barplot(x="user_id", y="seller_city", data=a.head(5), palette=colors, hue="seller_city", ax=ax[0])
+    ax[0].set_ylabel(None)
+    ax[0].set_xlabel(None)
+    ax[0].set_title("Seller Distribution", loc="center", fontsize=15)
+    ax[0].tick_params(axis ='y', labelsize=12)
 
-plt.suptitle("Total Distribution of Sellers and Buyers", fontsize=20)
+    sns.barplot(x="user_id", y="customer_city", data=b.sort_values(by="user_id", ascending=False).head(5), palette=colors, hue="customer_city", ax=ax[1])
+    ax[1].set_ylabel(None)
+    ax[1].set_xlabel(None)
+    ax[1].invert_xaxis()
+    ax[1].yaxis.set_label_position("right")
+    ax[1].yaxis.tick_right()
+    ax[1].set_title("Customer Distribution", loc="center", fontsize=15)
+    ax[1].tick_params(axis='y', labelsize=12)
 
-st.pyplot(plt)
+    plt.suptitle("Total Distribution of Sellers and Buyers", fontsize=20)
+
+    st.pyplot(plt)

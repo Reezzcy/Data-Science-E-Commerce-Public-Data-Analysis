@@ -4,13 +4,13 @@
 
 The projects aims to extract valuable insights from transaction data and customer activities in a public e-commerce platform. Using data analysis and visualization techniques, the project aims to understand buyer behavior, buying trends, spending patterns, distribution, and other factors that affect e-commerce business performance.
 
-## Setup environment
+## Setup Environment
 
 ```
-pip install numpy pandas matplotlib seaborn streamlit geopandas
+pip install -r requirements.txt
 ```
 
-## Run steamlit app
+## Run Steamlit App
 
 ```
 streamlit run ./dashboard/dashboard.py
